@@ -21,6 +21,9 @@ export class Result extends BaseEntity {
   @Column()
   name: string;
 
+  @Column()
+  new: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

@@ -15,7 +15,7 @@ import { Result } from './entities/result.entity';
       username: 'root',
       password: '123',
       database: 'test',
-      entities: ['dist/entities/*.entity.js'],
+      entities: ['dist/entities/*.entity{.ts,.js}'],
       migrations: ['dist/migrations/*.js'],
       synchronize: false,
     }),

@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Result } from 'src/entities/result.entity';
 import { request } from 'gaxios';
 import { UnderlyingData, WarrantDataDto } from './dto/warrant-data.dto';
+import { connectionSource } from 'src/config/ormconfig';
 
 const PREDEFINED_UNDERLYING: string[] = [
   '0700',
@@ -24,7 +25,9 @@ export class ProcessService {
     @InjectRepository(Result) private resultRepository: Repository<Result>,
   ) {}
   createResult(result: any) {
-    const newReslt = this.resultRepository.create({
+    const resultRepository = connectionSource.getRepository(Result);
+
+    const newReslt = resultRepository.create({
       rank: 1,
       name: 'test',
     });
