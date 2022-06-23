@@ -1,10 +1,17 @@
-import { Body, Injectable, Post } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Result } from 'src/entities/result.entity';
 import { request } from 'gaxios';
-import { UnderlyingData, WarrantDataDto } from './dto/warrant-data.dto';
+import {
+  FeedMetadata,
+  UnderlyingData,
+  WarrantDataDto,
+} from './dto/warrant-data.dto';
 import { connectionSource } from 'src/config/ormconfig';
+import { ResultDataDto } from './dto/result-data.dto';
+import { MarketDate } from 'src/entities/marketDate.entity';
+import { Underlying } from 'src/entities/underlying.entity';
 
 const PREDEFINED_UNDERLYING: string[] = [
   '0700',
@@ -17,32 +24,83 @@ const PREDEFINED_UNDERLYING: string[] = [
   '9618',
   '1299',
   '0388',
-];
+]; // predefined underlyings by GS
 
 @Injectable()
 export class ProcessService {
   constructor(
     @InjectRepository(Result) private resultRepository: Repository<Result>,
   ) {}
-  createResult(result: any) {
-    const resultRepository = connectionSource.getRepository(Result);
+  async createResult(result: ResultDataDto, marketMetaData: FeedMetadata) {
+    const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
 
-    const newReslt = resultRepository.create({
-      rank: 1,
-      name: 'test',
+    const marketDate = new MarketDate({
+      date: marketMetaData.lastUpdated,
     });
-    return this.resultRepository.save(newReslt);
+
+    let resultList: Result[] = [];
+
+    result.map((r, i) => {
+      const newResult = resultRepository.create({
+        rank: i + 1,
+        underlying_id: r.id,
+        name: r.result[0].name1,
+        market_date: marketDate,
+        underlying_pchng: r.underlying_pchng,
+      }); // add columns to database
+
+      resultList.push(newResult);
+      resultRepository.save(newResult);
+    });
+
+    await this.addMarketDate(marketMetaData, resultList); // store market date
+
+    return result;
   }
 
-  async fetchDataFromClient(): Promise<WarrantDataDto> {
+  async addMarketDate(marketDate: FeedMetadata, result: Result[]) {
+    const marketDateRepository = connectionSource.getRepository(MarketDate);
+
+    const newMarketDate = marketDateRepository.create({
+      date: marketDate.lastUpdated,
+      isOpen: Boolean(marketDate.isMarketOpen),
+      result: result,
+    });
+
+    marketDateRepository.save(newMarketDate);
+  }
+
+  async addUnderlying(underlying: any) {
+    const underlyingRepository = connectionSource.getRepository(Underlying);
+
+    const oldUnderlying = await underlyingRepository.find(underlying.id);
+
+    if (oldUnderlying) return;
+    else {
+      const newUnderlying = underlyingRepository.create({
+        id: underlying.id,
+        name: underlying.result[0].name1,
+      });
+      const response = underlyingRepository.save(newUnderlying);
+
+      return response;
+    }
+  }
+
+  async storeResult(): Promise<ResultDataDto> {
     const { data } = await request<WarrantDataDto>({
       method: 'GET',
       url: 'https://www.gswarrants.com.hk/banner/fivestone/warrant_data.cgi',
     }); // fetch data
 
-    this.processData(data);
+    await this.addUnderlying(data); // store the underlying invovled
 
-    return data;
+    const marketMetaData: FeedMetadata = data[0];
+
+    const result = this.processData(data); // create result with logic
+
+    await this.createResult(result, marketMetaData); // store result
+    return this.processData(data);
   }
 
   processData(data: any) {
@@ -50,11 +108,13 @@ export class ProcessService {
 
     const result = this.logicOneProcess(data); //process the data with logic 1
 
-    // this.createResult(result);
+    return result;
   }
 
   private logicOneProcess(data: UnderlyingData[]): any {
-    const resultList: any[] = [];
+    let resultList = [];
+
+    console.log(resultList);
 
     //rank 1
     data.map((d) => {
@@ -128,7 +188,7 @@ export class ProcessService {
       console.log(`rank ${i + 1}: ${r.id} ${r.underlying_pchng}`);
     });
 
-    return resultList;
+    return resultList; // return the sorted list
   }
 
   private countCall(underlying: UnderlyingData): number {

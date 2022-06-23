@@ -24,3 +24,5 @@ export interface ResultData {
     },
   ];
 }
+
+export type ResultDataDto = [ResultData];
