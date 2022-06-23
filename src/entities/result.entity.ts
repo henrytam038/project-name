@@ -22,7 +22,7 @@ export class Result extends BaseEntity {
   name: string;
 
   @Column()
-  new: string;
+  test: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;

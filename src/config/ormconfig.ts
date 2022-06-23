@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { join } from 'path';
 
 export const connectionSource = new DataSource({
   migrationsTableName: 'migrations',
@@ -11,8 +12,8 @@ export const connectionSource = new DataSource({
   logging: false,
   synchronize: false,
   name: 'default',
-  entities: ['src/**/*.entity{.ts,.js}'],
-  migrations: ['src/migrations/*{.ts,.js}'],
+  entities: [join('dist', '**', '*.entity.{ts,js}')],
+  migrations: [join('dist', 'migrations', '*.{ts,js}')],
   subscribers: ['src/subscriber/**/*{.ts,.js}'],
 });
 

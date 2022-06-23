@@ -5,7 +5,7 @@ import { ProcessService } from './process/process.service';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Result } from './entities/result.entity';
-
+import { join } from 'path';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -15,8 +15,8 @@ import { Result } from './entities/result.entity';
       username: 'root',
       password: '123',
       database: 'test',
-      entities: ['dist/entities/*.entity{.ts,.js}'],
-      migrations: ['dist/migrations/*.js'],
+      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+      migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       synchronize: false,
     }),
     TypeOrmModule.forFeature([Result]),
