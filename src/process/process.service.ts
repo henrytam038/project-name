@@ -93,14 +93,14 @@ export class ProcessService {
       url: 'https://www.gswarrants.com.hk/banner/fivestone/warrant_data.cgi',
     }); // fetch data
 
-    await this.addUnderlying(data); // store the underlying invovled
+    // await this.addUnderlying(data); // store the underlying invovled
 
     const marketMetaData: FeedMetadata = data[0];
 
     const result = this.processData(data); // create result with logic
 
-    await this.createResult(result, marketMetaData); // store result
-    return this.processData(data);
+    // await this.createResult(result, marketMetaData); // store result
+    return result;
   }
 
   processData(data: any) {
@@ -116,64 +116,48 @@ export class ProcessService {
 
     console.log(resultList);
 
-    //rank 1
     data.map((d) => {
       if (
+        //rank 1
         parseInt(d.underlying_pchng) <= -2 &&
         d.moneyflow_long >= 0 &&
         this.countCall(d) === 2
       ) {
-        resultList.push(d);
-      }
-    });
-    //rank 2
-    data.map((d) => {
-      if (
+        resultList.push({ rank: 1, ...d });
+      } else if (
+        //rank 2
         parseInt(d.underlying_pchng) >= 2 &&
         d.moneyflow_short >= 0 &&
         this.countPut(d) === 2
       ) {
-        resultList.push(d);
-      }
-    });
-    //rank 3
-    data.map((d) => {
-      if (
+        resultList.push({ rank: 2, ...d });
+      } else if (
+        //rank 3
         parseInt(d.underlying_pchng) >= -2 &&
         parseInt(d.underlying_pchng) < 0 &&
         d.moneyflow_long >= 0 &&
         this.countCall(d) === 2
       ) {
-        resultList.push(d);
-      }
-    });
-    //rank 4
-    data.map((d) => {
-      if (
+        resultList.push({ rank: 3, ...d });
+      } else if (
+        //rank 4
         parseInt(d.underlying_pchng) < 2 &&
         parseInt(d.underlying_pchng) > 0 &&
         d.moneyflow_long > 0 &&
         this.countCall(d) === 1 &&
         this.countPut(d) === 1
       ) {
-        resultList.push(d);
-      }
-    });
-    //rank 5
-    data.map((d) => {
-      if (
+        resultList.push({ rank: 4, ...d });
+      } else if (
+        //rank 5
         parseInt(d.underlying_pchng) < 2 &&
         parseInt(d.underlying_pchng) > 0 &&
         d.moneyflow_long < 0 &&
         this.countCall(d) === 1 &&
         this.countPut(d) === 1
       ) {
-        resultList.push(d);
-      }
-    });
-    // rank 6
-    data.map((d) => {
-      if (
+        resultList.push({ rank: 5, ...d });
+      } else if (
         parseInt(d.underlying_pchng) >= -2 &&
         parseInt(d.underlying_pchng) < 0 &&
         d.moneyflow_long > 0 &&
@@ -185,7 +169,7 @@ export class ProcessService {
     });
 
     resultList.map((r, i) => {
-      console.log(`rank ${i + 1}: ${r.id} ${r.underlying_pchng}`);
+      console.log(`rank ${r.rank}: ${r.id} ${r.underlying_pchng}`);
     });
 
     return resultList; // return the sorted list

@@ -6,7 +6,6 @@ import {
   UpdateDateColumn,
   BaseEntity,
   ManyToOne,
-  OneToOne,
 } from 'typeorm';
 import { MarketDate } from './marketDate.entity';
 
@@ -16,24 +15,31 @@ export class Result extends BaseEntity {
   id: number;
 
   @Column()
-  rank: number;
+  rank: number; // 1
 
-  underlying_id: string;
+  @Column()
+  code: string; // 10429
+
+  @Column()
+  type: string; //Warrant / Call
+
+  @Column()
+  underlying_id: string; // SPX
+
+  @Column()
+  name: string; // 標普
+
+  @Column()
+  comment: string; // logic 1
+
+  @Column()
+  selected_by: string;
 
   @Column()
   underlying_pchng: string;
 
-  // @Column('text', { array: true })
-  // underlying_rank: string[];
-
-  // @OneToOne(() => MarketDate, (marketDate) => marketDate.date)
-  // market_date: MarketDate;
-
   @ManyToOne(() => MarketDate, (marketDate) => marketDate.date)
   market_date: MarketDate;
-
-  @Column()
-  name: string;
 
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
