@@ -20,4 +20,11 @@ export class ResultController {
     console.log(res);
     return res;
   }
+
+  @Get('current')
+  async fetchCurrentMarketFeed(): Promise<MarketFeedDataDto> {
+    const res = await this.processService.fetchCurrentMarketFeed();
+    console.log(res);
+    return res;
+  }
 }

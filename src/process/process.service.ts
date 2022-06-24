@@ -141,6 +141,24 @@ export class ProcessService {
       .getMany();
   }
 
+  async fetchCurrentMarketFeed(): Promise<any> {
+    const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity'
+    const marketDateRepository = connectionSource.getRepository(MarketDate);
+
+    const marketDateDoc = await marketDateRepository.findOne({
+      where: { isOpen: true },
+      order: { id: 'DESC' },
+    });
+    const id = marketDateDoc.id;
+    console.log(id);
+
+    return resultRepository
+      .createQueryBuilder('result')
+      .leftJoinAndSelect('result.market_date', 'market_date')
+      .where('marketDateId = :marketDateId', { marketDateId: id })
+      .getMany();
+  }
+
   processData(data: any) {
     data = data.filter((d) => PREDEFINED_UNDERLYING.includes(d.id)); // filter out major underlying predefined by GS
 
@@ -152,57 +170,66 @@ export class ProcessService {
   private logicOneProcess(data: UnderlyingData[]): any {
     let resultList = [];
 
-    console.log(resultList);
-
     data.map((d) => {
+      console.log(d.id);
+      console.log(parseFloat(d.underlying_pchng));
+      console.log(parseFloat(d.moneyflow_long));
+      console.log(this.countCall(d));
+      console.log(' ');
       if (
         //rank 1
-        parseInt(d.underlying_pchng) <= -2 &&
-        d.moneyflow_long >= 0 &&
+        parseFloat(d.underlying_pchng) <= -2 &&
+        parseFloat(d.moneyflow_long) >= 0 &&
         this.countCall(d) === 2
       ) {
+        console.log('rank 1 run');
         resultList.push({ rank: 1, ...d });
       } else if (
         //rank 2
-        parseInt(d.underlying_pchng) >= 2 &&
-        d.moneyflow_short >= 0 &&
+        parseFloat(d.underlying_pchng) >= 2 &&
+        parseFloat(d.moneyflow_short) >= 0 &&
         this.countPut(d) === 2
       ) {
+        console.log('rank 2 run');
+
         resultList.push({ rank: 2, ...d });
       } else if (
         //rank 3
-        parseInt(d.underlying_pchng) >= -2 &&
-        parseInt(d.underlying_pchng) < 0 &&
-        d.moneyflow_long >= 0 &&
+        parseFloat(d.underlying_pchng) >= -2 &&
+        parseFloat(d.underlying_pchng) < 0 &&
+        parseFloat(d.moneyflow_long) >= 0 &&
         this.countCall(d) === 2
       ) {
+        console.log('rank 3 run');
+
         resultList.push({ rank: 3, ...d });
       } else if (
         //rank 4
-        parseInt(d.underlying_pchng) < 2 &&
-        parseInt(d.underlying_pchng) > 0 &&
-        d.moneyflow_long > 0 &&
+        parseFloat(d.underlying_pchng) < 2 &&
+        parseFloat(d.underlying_pchng) > 0 &&
+        parseFloat(d.moneyflow_long) > 0 &&
         this.countCall(d) === 1 &&
         this.countPut(d) === 1
       ) {
         resultList.push({ rank: 4, ...d });
+        console.log('rank 4 run');
       } else if (
         //rank 5
-        parseInt(d.underlying_pchng) < 2 &&
-        parseInt(d.underlying_pchng) > 0 &&
-        d.moneyflow_long < 0 &&
+        parseFloat(d.underlying_pchng) < 2 &&
+        parseFloat(d.underlying_pchng) > 0 &&
+        parseFloat(d.moneyflow_long) < 0 &&
         this.countCall(d) === 1 &&
         this.countPut(d) === 1
       ) {
         resultList.push({ rank: 5, ...d });
       } else if (
-        parseInt(d.underlying_pchng) >= -2 &&
-        parseInt(d.underlying_pchng) < 0 &&
-        d.moneyflow_long > 0 &&
+        parseFloat(d.underlying_pchng) >= -2 &&
+        parseFloat(d.underlying_pchng) < 0 &&
+        parseFloat(d.moneyflow_long) > 0 &&
         this.countCall(d) === 1 &&
         this.countPut(d) === 1
       ) {
-        resultList.push(d);
+        resultList.push({ rank: 6, ...d });
       }
     });
 
@@ -216,9 +243,11 @@ export class ProcessService {
   private countCall(underlying: UnderlyingData): number {
     let callCount = 0;
 
+    // console.log(underlying.result);
     if (underlying.result[0].type1 === '認購') callCount++;
     if (underlying.result[1].type2 === '認購') callCount++;
 
+    // console.log('call' + callCount);
     return callCount;
   }
 

@@ -6,8 +6,8 @@ export interface FeedMetadata {
 export interface UnderlyingData {
   id: string;
   underlying_pchng: string;
-  moneyflow_long: number;
-  moneyflow_short: number;
+  moneyflow_long: string;
+  moneyflow_short: string;
   result: [
     {
       code1: string;

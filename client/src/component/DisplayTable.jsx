@@ -1,5 +1,7 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
+import Container from 'react-bootstrap/Container';
+
 const DisplayTable = ({ data }) => {
   console.log(data);
   if (!data) return;
@@ -18,7 +20,7 @@ const DisplayTable = ({ data }) => {
         </thead>
         <tbody>
           {!!data &&
-            data.data.map((d, i) => {
+            data.map((d, i) => {
               return (
                 <tr>
                   <td>{i + 1}</td>
