@@ -16,8 +16,8 @@ function App() {
     fetchData();
   }, []);
   return (
-    <Container className="App shadow-sm mt-3">
-      <p>Current Feed</p>
+    <Container className="App shadow-sm mt-3 pt-3 border">
+      <h6>Current Feed</h6>
       {data && (
         <>
           <p>Last updated {data[0].market_date.date}</p>

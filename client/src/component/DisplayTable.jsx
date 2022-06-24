@@ -1,10 +1,9 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
-import Container from 'react-bootstrap/Container';
 
 const DisplayTable = ({ data }) => {
   console.log(data);
-  if (!data) return;
+  if (!data) return <p>Loading ... </p>;
   return (
     <>
       <Table responsive="xl">

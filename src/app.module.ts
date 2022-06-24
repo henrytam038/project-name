@@ -6,7 +6,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Result } from './entities/result.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { join, resolve } from 'path';
+import { join } from 'path';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -22,7 +22,6 @@ import { join, resolve } from 'path';
     }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client', 'build'),
-      // rootPath: join(resolve(), 'client', 'dist'),
     }),
     TypeOrmModule.forFeature([Result]),
   ],

@@ -4,7 +4,6 @@ import {
   PrimaryGeneratedColumn,
   Column,
   OneToMany,
-  OneToOne,
 } from 'typeorm';
 import { Result } from './result.entity';
 

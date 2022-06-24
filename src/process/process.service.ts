@@ -29,16 +29,16 @@ const PREDEFINED_UNDERLYING: string[] = [
 
 @Injectable()
 export class ProcessService {
-  constructor(
-    @InjectRepository(Result) private resultRepository: Repository<Result>,
-  ) {}
+  // constructor(
+  //   @InjectRepository(Result) private resultRepository: Repository<Result>,
+  // ) {}
+  resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
+  marketDateRepository = connectionSource.getRepository(MarketDate); //connect to "MarketDate"
+
   async createResult(result: ResultDataDto, marketMetaData: FeedMetadata) {
-    const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
-    const marketDateRepository = connectionSource.getRepository(MarketDate);
+    const resultList: Result[] = [];
 
-    let resultList: Result[] = [];
-
-    const newMarketDate = marketDateRepository.create({
+    const newMarketDate = this.marketDateRepository.create({
       date: marketMetaData.lastUpdated,
       isOpen: Boolean(marketMetaData.isMarketOpen),
     });
@@ -46,7 +46,7 @@ export class ProcessService {
     await Promise.all(
       result.map(async (r, i) => {
         if (r.result[0].code1 !== '') {
-          const newResult = resultRepository.create({
+          const newResult = this.resultRepository.create({
             rank: r.rank,
             underlying_id: r.id,
             code: r.result[0].code1,
@@ -55,12 +55,12 @@ export class ProcessService {
             comment: r.result[0].comment1,
             selected_by: 'Logic 1',
             underlying_pchng: r.underlying_pchng,
-          }); // add columns to database
+          });
           resultList.push(newResult);
-          await resultRepository.save(newResult);
+          await this.resultRepository.save(newResult); // add new Result to database
         }
         if (r.result[1].code2 !== '') {
-          const newResult = resultRepository.create({
+          const newResult = this.resultRepository.create({
             rank: r.rank,
             underlying_id: r.id,
             code: r.result[1].code2,
@@ -71,15 +71,14 @@ export class ProcessService {
             underlying_pchng: r.underlying_pchng,
           }); // add columns to database
           resultList.push(newResult);
-          await resultRepository.save(newResult);
+          await this.resultRepository.save(newResult);
         }
       }),
     );
 
     console.log(resultList);
     newMarketDate.results = resultList;
-    await marketDateRepository.save(newMarketDate);
-    // await this.addMarketDate(marketMetaData, resultList); // store market date
+    await this.marketDateRepository.save(newMarketDate);
 
     return result;
   }
@@ -98,22 +97,22 @@ export class ProcessService {
   //   await marketDateRepository.save(newMarketDate);
   // }
 
-  private async addUnderlying(underlying: any) {
-    const underlyingRepository = connectionSource.getRepository(Underlying);
+  // private async addUnderlying(underlying: any) {
+  //   const underlyingRepository = connectionSource.getRepository(Underlying);
 
-    const oldUnderlying = await underlyingRepository.find(underlying.id);
+  //   const oldUnderlying = await underlyingRepository.find(underlying.id);
 
-    if (oldUnderlying) return;
-    else {
-      const newUnderlying = underlyingRepository.create({
-        id: underlying.id,
-        name: underlying.result[0].name1,
-      });
-      const response = underlyingRepository.save(newUnderlying);
+  //   if (oldUnderlying) return;
+  //   else {
+  //     const newUnderlying = underlyingRepository.create({
+  //       id: underlying.id,
+  //       name: underlying.result[0].name1,
+  //     });
+  //     const response = underlyingRepository.save(newUnderlying);
 
-      return response;
-    }
-  }
+  //     return response;
+  //   }
+  // }
 
   async storeResult(): Promise<ResultDataDto> {
     const { data } = await request<WarrantDataDto>({
@@ -168,21 +167,15 @@ export class ProcessService {
   }
 
   private logicOneProcess(data: UnderlyingData[]): any {
-    let resultList = [];
+    const resultList = [];
 
     data.map((d) => {
-      console.log(d.id);
-      console.log(parseFloat(d.underlying_pchng));
-      console.log(parseFloat(d.moneyflow_long));
-      console.log(this.countCall(d));
-      console.log(' ');
       if (
         //rank 1
         parseFloat(d.underlying_pchng) <= -2 &&
         parseFloat(d.moneyflow_long) >= 0 &&
         this.countCall(d) === 2
       ) {
-        console.log('rank 1 run');
         resultList.push({ rank: 1, ...d });
       } else if (
         //rank 2
@@ -190,8 +183,6 @@ export class ProcessService {
         parseFloat(d.moneyflow_short) >= 0 &&
         this.countPut(d) === 2
       ) {
-        console.log('rank 2 run');
-
         resultList.push({ rank: 2, ...d });
       } else if (
         //rank 3
@@ -200,8 +191,6 @@ export class ProcessService {
         parseFloat(d.moneyflow_long) >= 0 &&
         this.countCall(d) === 2
       ) {
-        console.log('rank 3 run');
-
         resultList.push({ rank: 3, ...d });
       } else if (
         //rank 4
@@ -212,7 +201,6 @@ export class ProcessService {
         this.countPut(d) === 1
       ) {
         resultList.push({ rank: 4, ...d });
-        console.log('rank 4 run');
       } else if (
         //rank 5
         parseFloat(d.underlying_pchng) < 2 &&
@@ -242,12 +230,9 @@ export class ProcessService {
 
   private countCall(underlying: UnderlyingData): number {
     let callCount = 0;
-
-    // console.log(underlying.result);
     if (underlying.result[0].type1 === '認購') callCount++;
     if (underlying.result[1].type2 === '認購') callCount++;
 
-    // console.log('call' + callCount);
     return callCount;
   }
 
