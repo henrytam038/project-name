@@ -137,7 +137,7 @@ export class ProcessService {
     return resultRepository
       .createQueryBuilder('result')
       .leftJoinAndSelect('result.market_date', 'market_date')
-      .where('marketDateId = 1')
+      .where('marketDateId = 2')
       .getMany();
   }
 
