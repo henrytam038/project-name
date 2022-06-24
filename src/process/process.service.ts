@@ -12,6 +12,7 @@ import { connectionSource } from 'src/config/ormconfig';
 import { ResultDataDto } from './dto/result-data.dto';
 import { MarketDate } from 'src/entities/marketDate.entity';
 import { Underlying } from 'src/entities/underlying.entity';
+import { MarketFeedDataDto } from './dto/marketFeed-data.dto';
 
 const PREDEFINED_UNDERLYING: string[] = [
   '0700',
@@ -33,44 +34,71 @@ export class ProcessService {
   ) {}
   async createResult(result: ResultDataDto, marketMetaData: FeedMetadata) {
     const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
-
-    const marketDate = new MarketDate({
-      date: marketMetaData.lastUpdated,
-    });
+    const marketDateRepository = connectionSource.getRepository(MarketDate);
 
     let resultList: Result[] = [];
 
-    result.map((r, i) => {
-      const newResult = resultRepository.create({
-        rank: i + 1,
-        underlying_id: r.id,
-        name: r.result[0].name1,
-        market_date: marketDate,
-        underlying_pchng: r.underlying_pchng,
-      }); // add columns to database
-
-      resultList.push(newResult);
-      resultRepository.save(newResult);
+    const newMarketDate = marketDateRepository.create({
+      date: marketMetaData.lastUpdated,
+      isOpen: Boolean(marketMetaData.isMarketOpen),
     });
 
-    await this.addMarketDate(marketMetaData, resultList); // store market date
+    await Promise.all(
+      result.map(async (r, i) => {
+        if (r.result[0].code1 !== '') {
+          const newResult = resultRepository.create({
+            rank: r.rank,
+            underlying_id: r.id,
+            code: r.result[0].code1,
+            name: r.result[0].name1,
+            type: r.result[0].type1,
+            comment: r.result[0].comment1,
+            selected_by: 'Logic 1',
+            underlying_pchng: r.underlying_pchng,
+          }); // add columns to database
+          resultList.push(newResult);
+          await resultRepository.save(newResult);
+        }
+        if (r.result[1].code2 !== '') {
+          const newResult = resultRepository.create({
+            rank: r.rank,
+            underlying_id: r.id,
+            code: r.result[1].code2,
+            name: r.result[1].name2,
+            type: r.result[1].type2,
+            comment: r.result[1].comment2,
+            selected_by: 'Logic 1',
+            underlying_pchng: r.underlying_pchng,
+          }); // add columns to database
+          resultList.push(newResult);
+          await resultRepository.save(newResult);
+        }
+      }),
+    );
+
+    console.log(resultList);
+    newMarketDate.results = resultList;
+    await marketDateRepository.save(newMarketDate);
+    // await this.addMarketDate(marketMetaData, resultList); // store market date
 
     return result;
   }
 
-  async addMarketDate(marketDate: FeedMetadata, result: Result[]) {
-    const marketDateRepository = connectionSource.getRepository(MarketDate);
+  // async addMarketDate(marketDate: FeedMetadata, resultList: Result[]) {
+  //   const marketDateRepository = connectionSource.getRepository(MarketDate);
 
-    const newMarketDate = marketDateRepository.create({
-      date: marketDate.lastUpdated,
-      isOpen: Boolean(marketDate.isMarketOpen),
-      result: result,
-    });
+  //   console.log(resultList);
 
-    marketDateRepository.save(newMarketDate);
-  }
+  //   const newMarketDate = marketDateRepository.create({
+  //     date: marketDate.lastUpdated,
+  //     isOpen: Boolean(marketDate.isMarketOpen),
+  //     results: resultList,
+  //   });
 
-  async addUnderlying(underlying: any) {
+  //   await marketDateRepository.save(newMarketDate);
+  // }
+
+  private async addUnderlying(underlying: any) {
     const underlyingRepository = connectionSource.getRepository(Underlying);
 
     const oldUnderlying = await underlyingRepository.find(underlying.id);
@@ -99,8 +127,18 @@ export class ProcessService {
 
     const result = this.processData(data); // create result with logic
 
-    // await this.createResult(result, marketMetaData); // store result
+    await this.createResult(result, marketMetaData); // store result
     return result;
+  }
+
+  async fetchMarketFeedByDate(): Promise<any> {
+    const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
+
+    return resultRepository
+      .createQueryBuilder('result')
+      .leftJoinAndSelect('result.market_date', 'market_date')
+      .where('marketDateId = 1')
+      .getMany();
   }
 
   processData(data: any) {

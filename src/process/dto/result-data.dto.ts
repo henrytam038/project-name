@@ -3,6 +3,7 @@ export interface ResultData {
   underlying_pchng: string;
   moneyflow_long: number;
   moneyflow_short: number;
+  rank: number;
   result: [
     {
       code1: string;

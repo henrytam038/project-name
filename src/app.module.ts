@@ -16,7 +16,7 @@ import { join, resolve } from 'path';
       username: 'root',
       password: '123',
       database: 'test',
-      entities: [join(__dirname, '**', '*.entity.{ts,js}')],
+      entities: [join(__dirname, '**', '*.entities.{ts,js}')],
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       synchronize: false,
     }),

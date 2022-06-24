@@ -16,11 +16,8 @@ export class MarketDate extends BaseEntity {
   @Column()
   date: string;
 
-  //   @OneToOne(() => Result, (result) => result.market_date)
-  //   result: Result;
-
   @OneToMany(() => Result, (result) => result.market_date)
-  result: Result[];
+  results: Result[];
 
   @Column({ default: true })
   isOpen: boolean;

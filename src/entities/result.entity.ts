@@ -38,7 +38,7 @@ export class Result extends BaseEntity {
   @Column()
   underlying_pchng: string;
 
-  @ManyToOne(() => MarketDate, (marketDate) => marketDate.date)
+  @ManyToOne(() => MarketDate, (marketDate) => marketDate.results)
   market_date: MarketDate;
 
   @CreateDateColumn({ type: 'timestamp' })
