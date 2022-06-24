@@ -5,7 +5,8 @@ import { ProcessService } from './process/process.service';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Result } from './entities/result.entity';
-import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join, resolve } from 'path';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -18,6 +19,10 @@ import { join } from 'path';
       entities: [join(__dirname, '**', '*.entity.{ts,js}')],
       migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
       synchronize: false,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'client', 'build'),
+      // rootPath: join(resolve(), 'client', 'dist'),
     }),
     TypeOrmModule.forFeature([Result]),
   ],
