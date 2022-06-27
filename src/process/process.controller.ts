@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Post } from '@nestjs/common';
 import { ProcessService } from './process.service';
-import { UnderlyingData, WarrantDataDto } from './dto/warrant-data.dto';
-import { ResultDataDto } from './dto/result-data.dto';
+import { UnderlyingData } from './dto/warrant-data.dto';
 
 @Controller('result')
 export class ResultController {

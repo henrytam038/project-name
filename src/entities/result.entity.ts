@@ -30,10 +30,10 @@ export class Result extends BaseEntity {
   name: string; // 標普
 
   @Column()
-  comment: string; // logic 1
+  comment: string; // 類近條款中最高槓桿
 
   @Column()
-  selected_by: string;
+  selected_by: string; // logic 1
 
   @Column()
   underlying_pchng: string;

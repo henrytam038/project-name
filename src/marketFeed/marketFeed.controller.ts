@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Param } from '@nestjs/common';
 import { MarketFeedData, MarketFeedService } from './marketFeed.service';
 import { Result } from 'src/entities/result.entity';
 
@@ -6,10 +6,10 @@ import { Result } from 'src/entities/result.entity';
 export class MarketFeedController {
   constructor(private readonly marketFeedService: MarketFeedService) {}
 
-  @Get() // need param
-  async fethMarketFeedByDate(): Promise<Result[]> {
-    const res = await this.marketFeedService.fetchMarketFeedByDate();
-    console.log(res);
+  @Get(':date') // need param
+  async fetchMarketFeedByDate(@Param('date') date): Promise<Result[]> {
+    console.log(date);
+    const res = await this.marketFeedService.fetchMarketFeedByDate(date);
     return res;
   }
 

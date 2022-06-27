@@ -7,10 +7,8 @@ import {
   WarrantDataDto,
 } from './dto/warrant-data.dto';
 import { connectionSource } from 'src/config/ormconfig';
-import { ResultDataDto } from './dto/result-data.dto';
 import { MarketDate } from 'src/entities/marketDate.entity';
-import { Underlying } from 'src/entities/underlying.entity';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
 
 const PREDEFINED_UNDERLYING: string[] = [
   '0700',
