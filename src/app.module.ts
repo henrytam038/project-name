@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Result } from './entities/result.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { join } from 'path';
       rootPath: join(__dirname, '..', 'client', 'build'),
     }),
     TypeOrmModule.forFeature([Result]),
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController, ResultController],
   providers: [AppService, ProcessService],

@@ -25,7 +25,7 @@ const DisplayTable = ({ data }) => {
                   <td>{i + 1}</td>
                   <td>{d.code}</td>
                   <td>
-                    {d.type === '認購' ? 'Warrant/ Call' : 'Warrant/ Put'}
+                    {d.type === '認購' ? 'Warrant / Call' : 'Warrant / Put'}
                   </td>
                   <td>{`${d.underlying_id} ${d.name}`}</td>
                   <td>{d.comment}</td>

@@ -12,7 +12,8 @@ import { connectionSource } from 'src/config/ormconfig';
 import { ResultDataDto } from './dto/result-data.dto';
 import { MarketDate } from 'src/entities/marketDate.entity';
 import { Underlying } from 'src/entities/underlying.entity';
-import { MarketFeedDataDto } from './dto/marketFeed-data.dto';
+import { MarketFeedDataDto } from '../marketFeed/dto/marketFeed-data.dto';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 const PREDEFINED_UNDERLYING: string[] = [
   '0700',
@@ -114,12 +115,14 @@ export class ProcessService {
   //   }
   // }
 
-  async storeResult(): Promise<ResultDataDto> {
+  @Cron('*/15 * * * *')
+  async fetchDataAndStoreResult(): Promise<ResultDataDto> {
     const { data } = await request<WarrantDataDto>({
       method: 'GET',
       url: 'https://www.gswarrants.com.hk/banner/fivestone/warrant_data.cgi',
     }); // fetch data
 
+    console.log('run fetchDataAndStoreResult() every 15mins');
     // await this.addUnderlying(data); // store the underlying invovled
 
     const marketMetaData: FeedMetadata = data[0];
@@ -158,7 +161,7 @@ export class ProcessService {
       .getMany();
   }
 
-  processData(data: any) {
+  private processData(data: any) {
     data = data.filter((d) => PREDEFINED_UNDERLYING.includes(d.id)); // filter out major underlying predefined by GS
 
     const result = this.logicOneProcess(data); //process the data with logic 1

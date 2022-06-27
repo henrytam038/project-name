@@ -1,20 +1,13 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { ProcessService } from './process.service';
-import { WarrantDataDto } from './dto/warrant-data.dto';
-import { ResultDataDto } from './dto/result-data.dto';
+import { ProcessService } from './marketFeed.service';
 import { MarketFeedDataDto } from '../marketFeed/dto/marketFeed-data.dto';
 
-@Controller('result')
+@Controller('feed')
 export class ResultController {
   constructor(private readonly processService: ProcessService) {}
 
-  @Post()
-  fetchDataAndStoreResult(): Promise<ResultDataDto> {
-    return this.processService.fetchDataAndStoreResult();
-  }
-
   @Get() // need param
-  async fetchMarketFeedByDate(): Promise<MarketFeedDataDto> {
+  async fethMarketFeedByDate(): Promise<MarketFeedDataDto> {
     const res = await this.processService.fetchMarketFeedByDate();
     console.log(res);
     return res;
