@@ -9,7 +9,7 @@ function App() {
   const [data, setData] = useState(null);
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get('http://localhost:3000/result/current');
+      const res = await axios.get('http://localhost:3000/feed/current');
       setData(res.data);
     };
     console.log(data);
