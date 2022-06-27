@@ -1,11 +1,27 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+import Container from 'react-bootstrap/esm/Container';
 
-const DisplayTable = ({ data }) => {
-  console.log(data);
+const DisplayTable = () => {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await axios.get('http://localhost:3000/feed/current');
+
+      console.log(res.data);
+
+      setData(res.data);
+    };
+    fetchData();
+  }, []);
+
   if (!data) return <p>Loading ... </p>;
   return (
-    <>
+    <Container className="border shadow-sm mt-3">
+      <p>Current Feed</p>
+      <p>Last updated {data[0].market_date.date}</p>
       <Table responsive="xl">
         <thead>
           <tr>
@@ -35,7 +51,7 @@ const DisplayTable = ({ data }) => {
             })}
         </tbody>
       </Table>
-    </>
+    </Container>
   );
 };
 

@@ -17,7 +17,7 @@ export class MarketFeedService {
   resultRepository = connectionSource.getRepository(Result); // connect to 'Result' repo
   marketDateRepository = connectionSource.getRepository(MarketDate); //connect to "MarketDate" repo
 
-  async fetchMarketFeedByDate(date: string): Promise<Result[]> {
+  async fetchMarketFeedByDate(date: string): Promise<any> {
     const marketDateDoc = await this.marketDateRepository
       .createQueryBuilder('market_dates')
       .where('market_dates.date LIKE :date', { date: `%${date}%` })
@@ -25,12 +25,22 @@ export class MarketFeedService {
 
     const idList = marketDateDoc.map((d) => d.id);
 
-    const data = this.resultRepository
+    const data = await this.resultRepository
       .createQueryBuilder('result')
       .leftJoinAndSelect('result.market_date', 'market_date')
       .where('marketDateId IN (:marketDateId)', { marketDateId: idList })
       .getMany();
-    return data;
+
+    const newList = data.reduce((acc, obj) => {
+      const key = obj.market_date['id'];
+      if (!acc[key]) {
+        acc[key] = [];
+      }
+      // Add object to list for given key's value
+      acc[key].push(obj);
+      return acc;
+    }, {});
+    return newList;
   }
 
   async fetchCurrentMarketFeed(): Promise<Result[]> {
@@ -40,11 +50,13 @@ export class MarketFeedService {
     });
     const id = marketDateDoc.id;
 
-    const data = this.resultRepository
+    const data = await this.resultRepository
       .createQueryBuilder('result')
       .leftJoinAndSelect('result.market_date', 'market_date')
       .where('marketDateId = :marketDateId', { marketDateId: id })
       .getMany();
+
+    console.log(data);
 
     return data;
   }
