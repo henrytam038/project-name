@@ -9,18 +9,23 @@ const FeedHistoryTable = () => {
 
   const date = window.location.pathname.split('/').pop();
 
-  console.log(date);
+  let usedTime = [];
+
   useEffect(() => {
     const fetchData = async () => {
       const res = await axios.get(`http://localhost:3000/feed/${date}`); //test
-      console.log(res.data);
       setData(res.data);
+      console.log(res.data);
     };
     fetchData();
   }, []);
   if (!data) return <p>Loading ... </p>;
   return (
-    <Container className="border shadow-sm mt-3">
+    <Container className="border shadow-sm mt-3 p-3">
+      <p>
+        Feed histories on{' '}
+        {Object.values(data)[0][0].market_date.date.split(' ')[0]}
+      </p>
       <Table responsive="xl">
         <thead>
           <tr>
@@ -38,9 +43,13 @@ const FeedHistoryTable = () => {
         <tbody>
           {!!data &&
             Object.values(data).map((d, i) => {
+              let time = d[0].market_date.date.split(' ')[1];
+              if (usedTime.includes(time)) return;
+              usedTime.push(time);
+
               return (
                 <tr index={i}>
-                  <td>{d[0].market_date.date.split(' ')[1]}</td>
+                  <td>{time}</td>
                   {d.map((s) => (
                     <td>
                       {s.code} / {s.name}

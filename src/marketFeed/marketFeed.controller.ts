@@ -9,7 +9,6 @@ export class MarketFeedController {
   @Get('/current')
   async fetchCurrentMarketFeed(): Promise<Result[]> {
     const res = await this.marketFeedService.fetchCurrentMarketFeed();
-    console.log(res);
     return res;
   }
 

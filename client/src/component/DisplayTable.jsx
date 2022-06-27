@@ -1,8 +1,10 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
+import Button from 'react-bootstrap/Button';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Container from 'react-bootstrap/esm/Container';
+import { Link } from 'react-router-dom';
 
 const DisplayTable = () => {
   const [data, setData] = useState(null);
@@ -19,9 +21,16 @@ const DisplayTable = () => {
 
   if (!data) return <p>Loading ... </p>;
   return (
-    <Container className="border shadow-sm mt-3">
-      <p>Current Feed</p>
-      <p>Last updated {data[0].market_date.date}</p>
+    <Container className="border shadow-sm mt-3 p-3">
+      <div className="d-flex justify-content-between align-items-center">
+        <div>
+          <p>Current Feed</p>
+          <p>Last updated {data[0].market_date.date}</p>
+        </div>
+        <Button variant="light" style={{ height: '30px' }}>
+          <Link to="/history/2022-06-27">See feed details</Link>
+        </Button>
+      </div>
       <Table responsive="xl">
         <thead>
           <tr>

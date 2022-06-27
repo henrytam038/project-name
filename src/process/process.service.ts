@@ -76,20 +76,6 @@ export class ProcessService {
     return result;
   }
 
-  // async addMarketDate(marketDate: FeedMetadata, resultList: Result[]) {
-  //   const marketDateRepository = connectionSource.getRepository(MarketDate);
-
-  //   console.log(resultList);
-
-  //   const newMarketDate = marketDateRepository.create({
-  //     date: marketDate.lastUpdated,
-  //     isOpen: Boolean(marketDate.isMarketOpen),
-  //     results: resultList,
-  //   });
-
-  //   await marketDateRepository.save(newMarketDate);
-  // }
-
   // private async addUnderlying(underlying: any) {
   //   const underlyingRepository = connectionSource.getRepository(Underlying);
 
@@ -113,9 +99,6 @@ export class ProcessService {
       method: 'GET',
       url: 'https://www.gswarrants.com.hk/banner/fivestone/warrant_data.cgi',
     }); // fetch data
-
-    console.log('run fetchDataAndStoreResult() every 15mins');
-    // await this.addUnderlying(data); // store the underlying invovled
 
     const marketMetaData: FeedMetadata = data[0];
 

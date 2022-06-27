@@ -22,7 +22,6 @@ export class MarketFeedService {
       .createQueryBuilder('market_dates')
       .where('market_dates.date LIKE :date', { date: `%${date}%` })
       .getMany();
-    console.log(marketDateDoc);
 
     const idList = marketDateDoc.map((d) => d.id);
 
@@ -33,11 +32,10 @@ export class MarketFeedService {
       .getMany();
 
     const newList = data.reduce((acc, obj) => {
-      const key = obj.market_date['id'];
+      const key = obj.market_date['date'];
       if (!acc[key]) {
         acc[key] = [];
       }
-      // Add object to list for given key's value
       acc[key].push(obj);
       return acc;
     }, {});
@@ -56,8 +54,6 @@ export class MarketFeedService {
       .leftJoinAndSelect('result.market_date', 'market_date')
       .where('marketDateId = :marketDateId', { marketDateId: id })
       .getMany();
-
-    console.log(data);
 
     return data;
   }
