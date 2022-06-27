@@ -22,6 +22,7 @@ export class MarketFeedService {
       .createQueryBuilder('market_dates')
       .where('market_dates.date LIKE :date', { date: `%${date}%` })
       .getMany();
+    console.log(marketDateDoc);
 
     const idList = marketDateDoc.map((d) => d.id);
 

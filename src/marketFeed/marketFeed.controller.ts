@@ -15,7 +15,6 @@ export class MarketFeedController {
 
   @Get(':date') // need param
   async fetchMarketFeedByDate(@Param('date') date): Promise<Result[]> {
-    console.log(date);
     const res = await this.marketFeedService.fetchMarketFeedByDate(date);
     return res;
   }

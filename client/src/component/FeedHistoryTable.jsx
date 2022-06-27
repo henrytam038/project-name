@@ -6,9 +6,13 @@ import Container from 'react-bootstrap/esm/Container';
 
 const FeedHistoryTable = () => {
   const [data, setData] = useState(null);
+
+  const date = window.location.pathname.split('/').pop();
+
+  console.log(date);
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get('http://localhost:3000/feed/2022-06-27'); //test
+      const res = await axios.get(`http://localhost:3000/feed/${date}`); //test
       console.log(res.data);
       setData(res.data);
     };
