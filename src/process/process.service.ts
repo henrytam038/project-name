@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Result } from 'src/entities/result.entity';
 import { request } from 'gaxios';
 import {
@@ -12,7 +10,6 @@ import { connectionSource } from 'src/config/ormconfig';
 import { ResultDataDto } from './dto/result-data.dto';
 import { MarketDate } from 'src/entities/marketDate.entity';
 import { Underlying } from 'src/entities/underlying.entity';
-import { MarketFeedDataDto } from '../marketFeed/dto/marketFeed-data.dto';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 const PREDEFINED_UNDERLYING: string[] = [
@@ -30,13 +27,10 @@ const PREDEFINED_UNDERLYING: string[] = [
 
 @Injectable()
 export class ProcessService {
-  // constructor(
-  //   @InjectRepository(Result) private resultRepository: Repository<Result>,
-  // ) {}
   resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
   marketDateRepository = connectionSource.getRepository(MarketDate); //connect to "MarketDate"
 
-  async createResult(result: ResultDataDto, marketMetaData: FeedMetadata) {
+  async createResult(result: UnderlyingData[], marketMetaData: FeedMetadata) {
     const resultList: Result[] = [];
 
     const newMarketDate = this.marketDateRepository.create({
@@ -116,7 +110,7 @@ export class ProcessService {
   // }
 
   @Cron('*/15 * * * *')
-  async fetchDataAndStoreResult(): Promise<ResultDataDto> {
+  async fetchDataAndStoreResult(): Promise<UnderlyingData[]> {
     const { data } = await request<WarrantDataDto>({
       method: 'GET',
       url: 'https://www.gswarrants.com.hk/banner/fivestone/warrant_data.cgi',
@@ -127,41 +121,15 @@ export class ProcessService {
 
     const marketMetaData: FeedMetadata = data[0];
 
-    const result = this.processData(data); // create result with logic
+    const [, ...underlyingData] = data;
+
+    const result = this.processData(underlyingData); // create result with logic
 
     await this.createResult(result, marketMetaData); // store result
     return result;
   }
 
-  async fetchMarketFeedByDate(): Promise<any> {
-    const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
-
-    return resultRepository
-      .createQueryBuilder('result')
-      .leftJoinAndSelect('result.market_date', 'market_date')
-      .where('marketDateId = 2')
-      .getMany();
-  }
-
-  async fetchCurrentMarketFeed(): Promise<any> {
-    const resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity'
-    const marketDateRepository = connectionSource.getRepository(MarketDate);
-
-    const marketDateDoc = await marketDateRepository.findOne({
-      where: { isOpen: true },
-      order: { id: 'DESC' },
-    });
-    const id = marketDateDoc.id;
-    console.log(id);
-
-    return resultRepository
-      .createQueryBuilder('result')
-      .leftJoinAndSelect('result.market_date', 'market_date')
-      .where('marketDateId = :marketDateId', { marketDateId: id })
-      .getMany();
-  }
-
-  private processData(data: any) {
+  private processData(data: UnderlyingData[]): UnderlyingData[] {
     data = data.filter((d) => PREDEFINED_UNDERLYING.includes(d.id)); // filter out major underlying predefined by GS
 
     const result = this.logicOneProcess(data); //process the data with logic 1
@@ -169,7 +137,7 @@ export class ProcessService {
     return result;
   }
 
-  private logicOneProcess(data: UnderlyingData[]): any {
+  private logicOneProcess(data: UnderlyingData[]): UnderlyingData[] {
     const resultList = [];
 
     data.map((d) => {
