@@ -1,19 +1,19 @@
 import { DataSource } from 'typeorm';
-import { join } from 'path';
+import 'dotenv/config';
 
 export const connectionSource = new DataSource({
   migrationsTableName: 'migrations',
   type: 'mysql',
-  host: 'localhost',
-  port: 3306,
-  username: 'root',
-  password: '123',
-  database: 'test',
+  host: process.env.DB_HOST,
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
   logging: false,
   synchronize: false,
   name: 'default',
-  entities: [join('dist', '**', '*.entity.{ts,js}')],
-  migrations: [join('dist', 'migrations', '*.{ts,js}')],
+  entities: ['dist/entities/*.entity.{js,ts}'],
+  migrations: ['dist/migrations/*.{ts,js}'],
   subscribers: ['src/subscriber/**/*{.ts,.js}'],
 });
 
@@ -22,3 +22,5 @@ const run = async () => {
 };
 
 run();
+
+console.log('dist' + '/entities/*entity.{js,ts}');
