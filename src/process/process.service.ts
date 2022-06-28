@@ -31,6 +31,13 @@ export class ProcessService {
   async createResult(result: UnderlyingData[], marketMetaData: FeedMetadata) {
     const resultList: Result[] = [];
 
+    const marketDateDoc = await this.marketDateRepository
+      .createQueryBuilder('market_dates')
+      .where('market_dates.date = :date', { date: marketMetaData.lastUpdated })
+      .getMany();
+
+    if (marketDateDoc.length !== 0) return;
+
     const newMarketDate = this.marketDateRepository.create({
       date: marketMetaData.lastUpdated,
       isOpen: Boolean(marketMetaData.isMarketOpen),
@@ -69,6 +76,7 @@ export class ProcessService {
       }),
     );
 
+    console.log('hi');
     console.log(resultList);
     newMarketDate.results = resultList;
     await this.marketDateRepository.save(newMarketDate);
@@ -99,6 +107,8 @@ export class ProcessService {
       method: 'GET',
       url: 'https://www.gswarrants.com.hk/banner/fivestone/warrant_data.cgi',
     }); // fetch data
+
+    console.log('run every 15mins');
 
     const marketMetaData: FeedMetadata = data[0];
 
@@ -165,7 +175,7 @@ export class ProcessService {
       } else if (
         parseFloat(d.underlying_pchng) >= -2 &&
         parseFloat(d.underlying_pchng) < 0 &&
-        parseFloat(d.moneyflow_long) > 0 &&
+        parseFloat(d.moneyflow_long) < 0 &&
         this.countCall(d) === 1 &&
         this.countPut(d) === 1
       ) {
