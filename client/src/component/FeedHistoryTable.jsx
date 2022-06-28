@@ -50,11 +50,14 @@ const FeedHistoryTable = () => {
               return (
                 <tr index={i}>
                   <td>{time}</td>
-                  {d.map((s) => (
-                    <td>
-                      {s.code} / {s.name}
-                    </td>
-                  ))}
+                  {d.map((s, j) => {
+                    if (j < 8)
+                      return (
+                        <td>
+                          {s.code} / {s.name}
+                        </td>
+                      );
+                  })}
                 </tr>
               );
             })}
