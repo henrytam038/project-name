@@ -11,6 +11,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { MarketFeedService } from './marketFeed/marketFeed.service';
 import { connectionSource } from './config/ormconfig';
+import { MarketDateController } from './marketDate/marketDate.controller';
+import { MarketDateService } from './marketDate/marketDate.service';
 
 @Module({
   imports: [
@@ -25,7 +27,12 @@ import { connectionSource } from './config/ormconfig';
     TypeOrmModule.forFeature([Result]),
     ScheduleModule.forRoot(),
   ],
-  controllers: [AppController, ResultController, MarketFeedController],
-  providers: [AppService, ProcessService, MarketFeedService],
+  controllers: [
+    AppController,
+    ResultController,
+    MarketFeedController,
+    MarketDateController,
+  ],
+  providers: [AppService, ProcessService, MarketFeedService, MarketDateService],
 })
 export class AppModule {}
