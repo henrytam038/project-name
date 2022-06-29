@@ -8,7 +8,7 @@ import { useNavigate } from 'react-router-dom';
 
 const FeedHistoryTable = () => {
   const [data, setData] = useState(null);
-  const [marketDates, setMarketDates] = useState(null);
+  const [marketDates, setMarketDates] = useState({});
   const navigate = useNavigate();
 
   const date = window.location.pathname.split('/').pop();
@@ -23,7 +23,6 @@ const FeedHistoryTable = () => {
 
       const res2 = await axios.get('http://localhost:3000/market_dates');
       setMarketDates(res2.data);
-      console.log(res2.data);
     };
     fetchData();
   }, [date]);
@@ -34,14 +33,18 @@ const FeedHistoryTable = () => {
         className="border shadow-sm mt-3  d-flex flex-column mr-2 "
         style={{ minWidth: '120px', marginRight: '15px' }}
       >
+        <p className="p-2">Date</p>
         {marketDates &&
-          marketDates.map((marketDate) => {
+          Object.keys(marketDates).map((marketDate) => {
             return (
               <Button
                 onClick={() => navigate(`/history/${marketDate}`)}
                 variant="light"
               >
                 {marketDate}
+                <span class="badge bg-secondary">
+                  {marketDates[marketDate]} updates
+                </span>
               </Button>
             );
           })}
