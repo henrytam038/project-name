@@ -76,7 +76,6 @@ export class ProcessService {
       }),
     );
 
-    console.log('hi');
     console.log(resultList);
     newMarketDate.results = resultList;
     await this.marketDateRepository.save(newMarketDate);

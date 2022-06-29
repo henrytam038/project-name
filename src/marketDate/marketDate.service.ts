@@ -13,6 +13,14 @@ export class MarketDateService {
       .createQueryBuilder('market_dates')
       .getMany();
 
-    return marketDateDoc;
+    const datesList = [];
+
+    console.log(marketDateDoc);
+    marketDateDoc.map((r) => {
+      if (!datesList.includes(r.date.split(' ')[0])) {
+        return datesList.push(r.date.split(' ')[0]);
+      }
+    });
+    return datesList.reverse();
   }
 }

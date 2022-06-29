@@ -10,13 +10,6 @@ export class MarketDateController {
   async fetchCurrentMarketFeed(): Promise<Result[]> {
     const res = await this.marketFeedService.fetchAllMarketDates();
 
-    const datesList = [];
-    res.map((r) => {
-      if (!datesList.includes(r.date.split(' ')[0])) {
-        return datesList.push(r.date.split(' ')[0]);
-      }
-    });
-
-    return datesList;
+    return res;
   }
 }
