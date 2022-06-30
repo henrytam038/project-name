@@ -130,7 +130,7 @@ export class ProcessService {
   private logicOneProcess(data: UnderlyingData[]): UnderlyingData[] {
     const resultList = [];
 
-    data.map((d) => {
+    data.forEach((d) => {
       if (
         //rank 1
         parseFloat(d.underlying_pchng) <= -2 &&

@@ -15,7 +15,7 @@ export class MarketDateService {
 
     const returnObj = {};
 
-    marketDateDoc.map((marketDate) => {
+    marketDateDoc.forEach((marketDate) => {
       const date = marketDate.date.split(' ')[0];
 
       if (!returnObj[date]) {
