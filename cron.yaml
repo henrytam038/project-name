@@ -1,0 +1,4 @@
+cron:
+  - description: 'update market feed every 15 minutes'
+    url: /result
+    schedule: every 15 minutes
