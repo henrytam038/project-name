@@ -5,12 +5,15 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Container from 'react-bootstrap/esm/Container';
 import { Link } from 'react-router-dom';
+import Spinner from 'react-bootstrap/Spinner';
 
 const DisplayTable = () => {
   const [data, setData] = useState(null);
+  const domain = process.env.REACT_APP_DOMAIN || 'http://localhost:3000';
+
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get('http://localhost:3000/feed/current');
+      const res = await axios.get(`${domain}/feed/current`);
 
       setData(res.data);
       console.log(res.data);
@@ -18,7 +21,12 @@ const DisplayTable = () => {
     fetchData();
   }, []);
 
-  if (!data) return <p>Loading ... </p>;
+  if (!data)
+    return (
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    );
   return (
     <Container className="border shadow-sm mt-3 p-3">
       <>
@@ -30,7 +38,9 @@ const DisplayTable = () => {
             )}
           </div>
           <Button variant="light" style={{ height: '30px' }}>
-            <Link to="/history/2022-06-27">See feed details</Link>
+            <Link to={`/history/${data[0].market_date.date.split(' ')[0]}`}>
+              See feed details
+            </Link>
           </Button>
         </div>
         <Table responsive="xl">

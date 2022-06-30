@@ -13,15 +13,17 @@ const FeedHistoryTable = () => {
 
   const date = window.location.pathname.split('/').pop();
 
+  const domain = process.env.REACT_APP_DOMAIN || 'http://localhost:3000';
+
   let usedTime = [];
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(`http://localhost:3000/feed/${date}`); //test
+      const res = await axios.get(`${domain}/feed/${date}`); //test
       setData(res.data);
       console.log(res.data);
 
-      const res2 = await axios.get('http://localhost:3000/market_dates');
+      const res2 = await axios.get(`${domain}/market_dates`);
       setMarketDates(res2.data);
     };
     fetchData();
@@ -35,25 +37,30 @@ const FeedHistoryTable = () => {
       >
         <p className="p-2">Date</p>
         {marketDates &&
-          Object.keys(marketDates).map((marketDate) => {
-            return (
-              <Button
-                onClick={() => navigate(`/history/${marketDate}`)}
-                variant="light"
-              >
-                {marketDate}
-                <span class="badge bg-secondary">
-                  {marketDates[marketDate]} updates
-                </span>
-              </Button>
-            );
-          })}
+          Object.keys(marketDates)
+            .reverse()
+            .map((marketDate) => {
+              return (
+                <Button
+                  onClick={() => navigate(`/history/${marketDate}`)}
+                  variant="light"
+                >
+                  {marketDate}
+                  <span
+                    class="badge bg-secondary"
+                    style={{ marginLeft: '5px' }}
+                  >
+                    {marketDates[marketDate]} updates
+                  </span>
+                </Button>
+              );
+            })}
       </div>
       <div className="border shadow-sm mt-3 p-3">
-        <p>
+        <h5>
           Feed histories on{' '}
           {Object.values(data)[0][0].market_date.date.split(' ')[0]}
-        </p>
+        </h5>
         <Table responsive="xl">
           <thead>
             <tr>
@@ -70,25 +77,27 @@ const FeedHistoryTable = () => {
           </thead>
           <tbody>
             {!!data &&
-              Object.values(data).map((d, i) => {
-                let time = d[0].market_date.date.split(' ')[1];
-                if (usedTime.includes(time)) return;
-                usedTime.push(time);
+              Object.values(data)
+                .reverse()
+                .map((d, i) => {
+                  let time = d[0].market_date.date.split(' ')[1];
+                  if (usedTime.includes(time)) return;
+                  usedTime.push(time);
 
-                return (
-                  <tr index={i}>
-                    <td>{time}</td>
-                    {d.map((s, j) => {
-                      if (j < 8)
-                        return (
-                          <td>
-                            {s.code} / {s.name}
-                          </td>
-                        );
-                    })}
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr index={i}>
+                      <td>{`${time.split(':')[0]}:${time.split(':')[1]}`}</td>
+                      {d.map((s, j) => {
+                        if (j < 8)
+                          return (
+                            <td>
+                              {s.code} / {s.name}
+                            </td>
+                          );
+                      })}
+                    </tr>
+                  );
+                })}
           </tbody>
         </Table>
       </div>
