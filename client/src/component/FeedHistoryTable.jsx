@@ -5,6 +5,7 @@ import axios from 'axios';
 import Container from 'react-bootstrap/esm/Container';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
+import Spinner from 'react-bootstrap/Spinner';
 
 const FeedHistoryTable = () => {
   const [data, setData] = useState(null);
@@ -28,7 +29,12 @@ const FeedHistoryTable = () => {
     };
     fetchData();
   }, [date]);
-  if (!data || !marketDates) return <p>Loading ... </p>;
+  if (!data || !marketDates)
+    return (
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading...</span>
+      </Spinner>
+    );
   return (
     <Container className="d-flex ">
       <div
