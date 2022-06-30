@@ -5,7 +5,7 @@ import { AppEngineCronValidated } from '../auth/app-engine-cron-validated.decora
 
 @Controller('result')
 @AppEngineCronValidated()
-export class ResultController {
+export class ProcessController {
   constructor(private readonly processService: ProcessService) {}
 
   @Get()

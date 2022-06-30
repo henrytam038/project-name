@@ -1,19 +1,18 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
-import { ResultController } from './process/process.controller';
-import { MarketFeedController } from './marketFeed/marketFeed.controller';
-import { ProcessService } from './process/process.service';
 import { AppService } from './app.service';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Result } from './entities/result.entity';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
-import { MarketFeedService } from './marketFeed/marketFeed.service';
 import { connectionSource } from './config/ormconfig';
 import { MarketDateController } from './marketDate/marketDate.controller';
 import { MarketDateService } from './marketDate/marketDate.service';
 import { MarketDate } from './entities/marketDate.entity';
+import { ProcessModule } from './process/process.module';
+import { MarketFeedModule } from './marketFeed/marketFeed.module';
+import { MarketDateModule } from './marketDate/marketDate.module';
 
 @Module({
   imports: [
@@ -27,13 +26,11 @@ import { MarketDate } from './entities/marketDate.entity';
     }),
     TypeOrmModule.forFeature([Result, MarketDate]),
     ScheduleModule.forRoot(),
+    ProcessModule,
+    MarketFeedModule,
+    MarketDateModule,
   ],
-  controllers: [
-    AppController,
-    ResultController,
-    MarketFeedController,
-    MarketDateController,
-  ],
-  providers: [AppService, ProcessService, MarketFeedService, MarketDateService],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule {}
