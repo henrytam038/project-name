@@ -1,13 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Result } from 'src/entities/result.entity';
-import { connectionSource } from 'src/config/ormconfig';
 import { MarketDate } from 'src/entities/marketDate.entity';
 
 @Injectable()
 export class MarketDateService {
-  resultRepository = connectionSource.getRepository(Result); // connect to 'Result' repo
-  marketDateRepository = connectionSource.getRepository(MarketDate); //connect to "MarketDate" repo
-
+  constructor(
+    @InjectRepository(Result)
+    private resultRepository: Repository<Result>, //connect to "Result"
+    @InjectRepository(MarketDate)
+    private marketDateRepository: Repository<MarketDate>, //connect to "MarketDate"
+  ) {}
   async fetchAllMarketDates(): Promise<any> {
     const marketDateDoc = await this.marketDateRepository
       .createQueryBuilder('market_dates')

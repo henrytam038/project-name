@@ -1,4 +1,6 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Result } from 'src/entities/result.entity';
 import { request } from 'gaxios';
 import {
@@ -25,8 +27,12 @@ const PREDEFINED_UNDERLYING: string[] = [
 
 @Injectable()
 export class ProcessService {
-  resultRepository = connectionSource.getRepository(Result); // connect to 'Result' entity
-  marketDateRepository = connectionSource.getRepository(MarketDate); //connect to "MarketDate"
+  constructor(
+    @InjectRepository(Result)
+    private resultRepository: Repository<Result>, //connect to "Result"
+    @InjectRepository(MarketDate)
+    private marketDateRepository: Repository<MarketDate>, //connect to "MarketDate"
+  ) {}
 
   async createResult(result: UnderlyingData[], marketMetaData: FeedMetadata) {
     const resultList: Result[] = [];

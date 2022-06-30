@@ -13,6 +13,7 @@ import { MarketFeedService } from './marketFeed/marketFeed.service';
 import { connectionSource } from './config/ormconfig';
 import { MarketDateController } from './marketDate/marketDate.controller';
 import { MarketDateService } from './marketDate/marketDate.service';
+import { MarketDate } from './entities/marketDate.entity';
 
 @Module({
   imports: [
@@ -24,7 +25,7 @@ import { MarketDateService } from './marketDate/marketDate.service';
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'client', 'build'),
     }),
-    TypeOrmModule.forFeature([Result]),
+    TypeOrmModule.forFeature([Result, MarketDate]),
     ScheduleModule.forRoot(),
   ],
   controllers: [
