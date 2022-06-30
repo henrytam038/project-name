@@ -7,7 +7,7 @@ import { MarketDateService } from './marketDate.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Result, MarketDate])],
   controllers: [MarketDateController],
-  providers: [MarketDateController],
+  providers: [MarketDateService],
   exports: [MarketDateService],
 })
 export class MarketDateModule {}

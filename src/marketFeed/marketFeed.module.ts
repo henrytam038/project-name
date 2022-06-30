@@ -8,7 +8,7 @@ import { MarketFeedService } from './marketFeed.service';
 @Module({
   imports: [TypeOrmModule.forFeature([Result, MarketDate])],
   controllers: [MarketFeedController],
-  providers: [MarketFeedController],
+  providers: [MarketFeedService],
   exports: [MarketFeedService],
 })
 export class MarketFeedModule {}

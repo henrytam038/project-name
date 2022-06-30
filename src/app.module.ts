@@ -7,8 +7,6 @@ import { ServeStaticModule } from '@nestjs/serve-static';
 import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 import { connectionSource } from './config/ormconfig';
-import { MarketDateController } from './marketDate/marketDate.controller';
-import { MarketDateService } from './marketDate/marketDate.service';
 import { MarketDate } from './entities/marketDate.entity';
 import { ProcessModule } from './process/process.module';
 import { MarketFeedModule } from './marketFeed/marketFeed.module';
