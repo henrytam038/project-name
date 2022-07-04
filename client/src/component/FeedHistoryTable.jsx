@@ -1,34 +1,84 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import Container from 'react-bootstrap/esm/Container';
 import Button from 'react-bootstrap/Button';
 import { useNavigate } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
+import {
+  getAllMarketDates,
+  getMarketFeedByDate,
+} from '../service/marketFeedAPI';
+import { useParams } from 'react-router-dom';
 
 const FeedHistoryTable = () => {
   const [data, setData] = useState(null);
   const [marketDates, setMarketDates] = useState({});
   const navigate = useNavigate();
 
-  const date = window.location.pathname.split('/').pop();
+  // const date = window.location.pathname.split('/').pop();
 
-  const domain = process.env.REACT_APP_DOMAIN || 'http://localhost:3000';
-
-  let usedTime = [];
+  let { date } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(`${domain}/feed/${date}`); //test
-      setData(res.data);
-      console.log(res.data);
+      const data = await getMarketFeedByDate(date);
 
-      const res2 = await axios.get(`${domain}/market_dates`);
+      setData(data);
+
+      const res2 = await getAllMarketDates();
       setMarketDates(res2.data);
     };
     fetchData();
   }, [date]);
+
+  const extractDate = (data) => {
+    return Object.values(data)[0][0].market_date.date.split(' ')[0];
+  };
+
+  const renderMarketDates = () => {
+    return Object.keys(marketDates)
+      .reverse()
+      .map((marketDate) => {
+        return (
+          <Button
+            onClick={() => navigate(`/history/${marketDate}`)}
+            variant="light"
+          >
+            {marketDate}
+            <span class="badge bg-secondary" style={{ marginLeft: '5px' }}>
+              {marketDates[marketDate]} updates
+            </span>
+          </Button>
+        );
+      });
+  };
+
+  const renderTableRows = () => {
+    let usedTime = [];
+    return Object.values(data)
+      .reverse()
+      .map((d, i) => {
+        let time = d[0].market_date.date.split(' ')[1];
+        if (usedTime.includes(time)) return null;
+        usedTime.push(time);
+
+        return (
+          <tr index={i}>
+            <td>{`${time.split(':')[0]}:${time.split(':')[1]}`}</td>
+            {d.map((s, j) => {
+              if (j < 8)
+                return (
+                  <td>
+                    {s.code} / {s.name}
+                  </td>
+                );
+            })}
+          </tr>
+        );
+      });
+  };
+
   if (!data || !marketDates)
     return (
       <Spinner animation="border" role="status">
@@ -42,31 +92,10 @@ const FeedHistoryTable = () => {
         style={{ minWidth: '120px', marginRight: '15px' }}
       >
         <p className="p-2">Date</p>
-        {marketDates &&
-          Object.keys(marketDates)
-            .reverse()
-            .map((marketDate) => {
-              return (
-                <Button
-                  onClick={() => navigate(`/history/${marketDate}`)}
-                  variant="light"
-                >
-                  {marketDate}
-                  <span
-                    class="badge bg-secondary"
-                    style={{ marginLeft: '5px' }}
-                  >
-                    {marketDates[marketDate]} updates
-                  </span>
-                </Button>
-              );
-            })}
+        {marketDates && renderMarketDates()}
       </div>
       <div className="border shadow-sm mt-3 p-3">
-        <h5>
-          Feed histories on{' '}
-          {Object.values(data)[0][0].market_date.date.split(' ')[0]}
-        </h5>
+        <h5>Feed histories on {extractDate(data)}</h5>
         <Table responsive="xl">
           <thead>
             <tr>
@@ -81,30 +110,7 @@ const FeedHistoryTable = () => {
               <th>Slot 8</th>
             </tr>
           </thead>
-          <tbody>
-            {!!data &&
-              Object.values(data)
-                .reverse()
-                .map((d, i) => {
-                  let time = d[0].market_date.date.split(' ')[1];
-                  if (usedTime.includes(time)) return;
-                  usedTime.push(time);
-
-                  return (
-                    <tr index={i}>
-                      <td>{`${time.split(':')[0]}:${time.split(':')[1]}`}</td>
-                      {d.map((s, j) => {
-                        if (j < 8)
-                          return (
-                            <td>
-                              {s.code} / {s.name}
-                            </td>
-                          );
-                      })}
-                    </tr>
-                  );
-                })}
-          </tbody>
+          <tbody>{!!data && renderTableRows()}</tbody>
         </Table>
       </div>
     </Container>

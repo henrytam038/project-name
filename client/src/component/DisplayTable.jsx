@@ -2,21 +2,18 @@ import React from 'react';
 import Table from 'react-bootstrap/Table';
 import Button from 'react-bootstrap/Button';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
 import Container from 'react-bootstrap/esm/Container';
 import { Link } from 'react-router-dom';
 import Spinner from 'react-bootstrap/Spinner';
+import { getCurrentMarketFeed } from '../service/marketFeedAPI';
 
 const DisplayTable = () => {
   const [data, setData] = useState(null);
-  const domain = process.env.REACT_APP_DOMAIN || 'http://localhost:3000';
-
   useEffect(() => {
     const fetchData = async () => {
-      const res = await axios.get(`${domain}/feed/current`);
-
-      setData(res.data);
-      console.log(res.data);
+      const data = await getCurrentMarketFeed();
+      setData(data);
+      console.log(data);
     };
     fetchData();
   }, []);
